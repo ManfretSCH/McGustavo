@@ -100,8 +100,17 @@ class NuevoPedidoFrame(ttk.Frame):
             messagebox.showwarning("Cantidad invalida", "La cantidad debe ser mayor a 0.")
             return
         producto_id, precio, nombre = self.productos_map[texto]
-        subtotal = precio * cantidad
-        self.items.append({"producto_id": producto_id, "nombre": nombre, "cantidad": cantidad, "subtotal": subtotal})
+        existente = next((it for it in self.items if it["producto_id"] == producto_id), None)
+        if existente is not None:
+            existente["cantidad"] += cantidad
+            existente["subtotal"] = existente["cantidad"] * precio
+        else:
+            self.items.append({
+                "producto_id": producto_id,
+                "nombre": nombre,
+                "cantidad": cantidad,
+                "subtotal": precio * cantidad,
+            })
         self._render_items()
 
     def quitar_item(self):
@@ -297,9 +306,11 @@ class MenuFrame(ttk.Frame):
             return
         v = self.tabla.item(sel[0], "values")
         self.seleccion_id = int(v[0])
-        self.nombre.delete(0, "end"); self.nombre.insert(0, v[1])
+        self.nombre.delete(0, "end")
+        self.nombre.insert(0, v[1])
         self.categoria.set(v[2])
-        self.precio.delete(0, "end"); self.precio.insert(0, v[3].replace(".", ""))
+        self.precio.delete(0, "end") 
+        self.precio.insert(0, v[3].replace(".", ""))
         self.disponible.set(v[4] == "Si")
 
     def _leer_form(self):
@@ -414,10 +425,14 @@ class ClientesFrame(ttk.Frame):
             return
         v = self.tabla.item(sel[0], "values")
         self.seleccion_id = int(v[0])
-        self.nombre.delete(0, "end"); self.nombre.insert(0, v[1])
-        self.ruc.delete(0, "end"); self.ruc.insert(0, v[2])
-        self.tel.delete(0, "end"); self.tel.insert(0, v[3])
-        self.direccion.delete(0, "end"); self.direccion.insert(0, v[4])
+        self.nombre.delete(0, "end")
+        self.nombre.insert(0, v[1])
+        self.ruc.delete(0, "end")
+        self.ruc.insert(0, v[2])
+        self.tel.delete(0, "end")
+        self.tel.insert(0, v[3])
+        self.direccion.delete(0, "end")
+        self.direccion.insert(0, v[4])
 
     def _leer_form(self):
         nombre = self.nombre.get().strip()
